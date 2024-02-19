@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "clamav-openshift.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "clamav-openshift.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "clamav-openshift.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "clamav-openshift.fullname" . }}
+  template:
+    metadata:
+      labels:
+        {{- include "clamav-openshift.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
+    spec:
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: clamav
+          image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 3310
+              name: clamav
+              protocol: TCP
+          # Give clamav up to 300s to get CVDs in place etc.
+          startupProbe:
+            exec:
+              command:
+                - /usr/local/bin/clamdcheck.sh
+            failureThreshold: 30
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - /usr/local/bin/clamdcheck.sh
+            failureThreshold: 2
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /var/lib/clamav
+              name: signatures-volume
+            - mountPath: /run/clamav
+              name: run-volume
+            - mountPath: /var/log/clamav
+              name: log-volume
+            - mountPath: /etc/clamav/clamd.conf
+              name: config-map-volume
+              readOnly: true
+              subPath: clamd.conf
+            - mountPath: /etc/clamav/freshclam.conf
+              name: config-map-volume
+              readOnly: true
+              subPath: freshclam.conf
+      volumes:
+        - name: run-volume
+          emptyDir: { }
+        - name: log-volume
+          emptyDir: { }
+        - name: config-map-volume
+          configMap:
+            name: {{ include "clamav-openshift.fullname" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: signatures-volume
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+      {{- with .Values.storageClassName }}
+        storageClassName: {{ . }}
+      {{- end }}
+        resources:
+          requests:
+            storage: 2Gi

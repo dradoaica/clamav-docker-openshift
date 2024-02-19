@@ -1,0 +1,77 @@
+# nameOverride -- override the name of the clamav-openshift chart
+nameOverride: ""
+
+# fullnameOverride -- override the full name of the clamav-openshift chart
+fullnameOverride: ""
+
+# image -- The clamav-openshift docker image
+image:
+  repository: dradoaica/clamav-openshift
+  tag: "1.3"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+freshclam:
+  # freshclam.mirrors -- A list of clamav mirrors to be used by the clamav service
+  mirrors: database.clamav.net
+  httpsProxyHost: ""
+  httpsProxyPort: ""
+limits:
+  # limits.fileSize -- The largest file size scanable by clamav, in MB
+  fileSize: 25
+  # limits.scanSize -- The largest scan size permitted in clamav, in MB
+  scanSize: 100
+  # limits.connectionQueueLength -- Maximum length the queue of pending connections may grow to
+  connectionQueueLength: 100
+  # limits.maxThreads --Maximum number of threads running at the same time.
+  maxThreads: 4
+  # sendBufTimeout -- This option specifies how long to wait (in milliseconds) if the send buffer is full, keep low to avoid clamd hanging
+  sendBufTimeout: 500
+
+service:
+  # service.port -- The port to be used by the clamav service
+  port: 3310
+
+resources:
+  # resources -- The resource requests and limits for the clamav service
+  requests:
+    cpu: 300m
+    memory: 2Gi
+  limits:
+    cpu: 2
+    memory: 4Gi
+
+nodeSelector: { }
+
+tolerations: [ ]
+
+affinity: { }
+
+## Pod Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+## @param provisioning.podSecurityContext.enabled Enable pod Security Context
+## @param provisioning.podSecurityContext.fsGroup Group ID for the container
+##
+podSecurityContext:
+  enabled: true
+  #fsGroup: 1000660000
+  seccompProfile:
+    type: RuntimeDefault
+
+## Container Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+## @param provisioning.containerSecurityContext.enabled Enable container Security Context
+## @param provisioning.containerSecurityContext.runAsUser User ID for the container
+## @param provisioning.containerSecurityContext.runAsNonRoot Avoid running as root User
+##
+containerSecurityContext:
+  enabled: true
+  #runAsUser: 1000660000
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - "ALL"
