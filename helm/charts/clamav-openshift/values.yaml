@@ -17,6 +17,7 @@ freshclam:
   mirrors: database.clamav.net
   httpsProxyHost: ""
   httpsProxyPort: ""
+
 limits:
   # limits.fileSize -- The largest file size scanable by clamav, in MB
   fileSize: 25
