@@ -1,4 +1,4 @@
-FROM clamav/clamav:1.3
+FROM clamav/clamav:1.4
 
 RUN install -d -g "clamav" -m 775 -o "clamav" "/run/clamav"
 

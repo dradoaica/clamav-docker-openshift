@@ -28,6 +28,17 @@ spec:
           {{- if .Values.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
+          env:
+            - name: CLAMAV_NO_CLAMD
+              value: 'false'
+            - name: CLAMAV_NO_FRESHCLAMD
+              value: 'false'
+            - name: CLAMAV_NO_MILTERD
+              value: 'true'
+            - name: CLAMD_STARTUP_TIMEOUT
+              value: '1800'
+            - name: FRESHCLAM_CHECKS
+              value: '1'
           ports:
             - containerPort: 3310
               name: clamav
