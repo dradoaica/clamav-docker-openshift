@@ -4,15 +4,15 @@ Is an OpenShift ready docker image built on top of [Docker Hub: clamav/clamav](h
 
 ## Build clamav-docker-openshift
 
-docker build -t dradoaica/clamav-openshift:1.4 -f Dockerfile .
+docker build -t dradoaica/clamav-openshift:1.4.1 -f Dockerfile .
 
 ## Push clamav-docker-openshift
 
-docker push dradoaica/clamav-openshift:1.4
+docker push dradoaica/clamav-openshift:1.4.1
 
 ## Run clamav-docker-openshift container
 
-docker run -p 0.0.0.0:3310:3310/tcp --name clamav-openshift -d dradoaica/clamav-openshift:1.4
+docker run -p 0.0.0.0:3310:3310/tcp --name clamav-openshift -d dradoaica/clamav-openshift:1.4.1
 
 ## Remove clamav-docker-openshift container
 
@@ -20,4 +20,4 @@ docker rm -f clamav-openshift
 
 ## Remove clamav-docker-openshift image
 
-docker rmi dradoaica/clamav-openshift:1.4
+docker rmi dradoaica/clamav-openshift:1.4.1
