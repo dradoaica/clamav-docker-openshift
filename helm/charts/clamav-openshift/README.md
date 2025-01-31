@@ -2,7 +2,7 @@
 
 Chart for deploying a ClamAVd on OpenShift as StatefulSet.
 
-Based on https://git.zero-downtime.net/ZeroDownTime/kubezero/src/branch/master/charts/clamav
+Based on https://git.zero-downtime.net/ZeroDownTime/kubezero/src/branch/main/charts/clamav
 
 ## Requirements
 
