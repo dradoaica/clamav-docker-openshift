@@ -9,7 +9,7 @@ replicaCount: 1
 # image -- The clamav-openshift docker image
 image:
   repository: dradoaica/clamav-openshift
-  tag: "1.4.1"
+  tag: "1.4.2"
   pullPolicy: IfNotPresent
 
 freshclam:
@@ -19,7 +19,7 @@ freshclam:
   httpsProxyPort: ""
 
 limits:
-  # limits.fileSize -- The largest file size scanable by clamav, in MB
+  # limits.fileSize -- The largest file size scalable by clamav, in MB
   fileSize: 25
   # limits.scanSize -- The largest scan size permitted in clamav, in MB
   scanSize: 100
