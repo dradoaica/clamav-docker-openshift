@@ -65,8 +65,6 @@ spec:
               name: tmp-volume
             - mountPath: /var/lib/clamav
               name: signatures-volume
-            - mountPath: /run/clamav
-              name: run-volume
             - mountPath: /var/log/clamav
               name: log-volume
             - mountPath: /etc/clamav/clamd.conf
@@ -79,8 +77,6 @@ spec:
               subPath: freshclam.conf
       volumes:
         - name: tmp-volume
-          emptyDir: { }
-        - name: run-volume
           emptyDir: { }
         - name: log-volume
           emptyDir: { }

@@ -9,7 +9,7 @@ replicaCount: 1
 # image -- The clamav-openshift docker image
 image:
   repository: dradoaica/clamav-openshift
-  tag: "1.4.2"
+  tag: "1.4.3"
   pullPolicy: IfNotPresent
 
 freshclam:

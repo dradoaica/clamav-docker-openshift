@@ -15,7 +15,7 @@ data:
     LogFileMaxSize 0
     DatabaseDirectory /var/lib/clamav
     TCPSocket 3310
-    LocalSocket /run/clamav/clamd.sock
+    LocalSocket /tmp/clamd.sock
     User clamav
     ExitOnOOM yes
     Foreground yes
