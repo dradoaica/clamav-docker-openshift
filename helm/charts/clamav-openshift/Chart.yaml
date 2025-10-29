@@ -2,8 +2,8 @@ apiVersion: v2
 name: clamav-openshift
 description: Chart for deploying a ClamAVd on OpenShift as StatefulSet
 type: application
-version: 1.4.3
-appVersion: "1.4.3"
+version: 1.5.1
+appVersion: "1.5.1"
 keywords:
   - clamav
 maintainers:

@@ -6,6 +6,15 @@ metadata:
   labels:
     {{- include "clamav-openshift.labels" . | nindent 4 }}
 data:
+  clamav-milter.conf: |
+    MilterSocket inet:7357
+    ClamdSocket /tmp/clamd.sock
+    LogFile /var/log/clamav/clamav-milter.log
+    LogTime yes
+    LogSyslog no
+    LogVerbose yes
+    User clamav
+    PidFile /tmp/clamav-milter.pid
   clamd.conf: |
     LogFile /var/log/clamav/clamd.log
     LogTime yes

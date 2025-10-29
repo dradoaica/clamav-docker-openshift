@@ -43,6 +43,9 @@ spec:
             - containerPort: 3310
               name: clamav
               protocol: TCP
+            - containerPort: 7357
+              name: milter
+              protocol: TCP
           # Give clamav up to 300s to get CVDs in place etc.
           startupProbe:
             exec:
@@ -67,6 +70,10 @@ spec:
               name: signatures-volume
             - mountPath: /var/log/clamav
               name: log-volume
+            - mountPath: /etc/clamav/clamav-milter.conf
+              name: config-map-volume
+              readOnly: true
+              subPath: clamav-milter.conf
             - mountPath: /etc/clamav/clamd.conf
               name: config-map-volume
               readOnly: true

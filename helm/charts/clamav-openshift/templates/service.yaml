@@ -11,5 +11,9 @@ spec:
       targetPort: 3310
       protocol: TCP
       name: clamav
+    - port: {{ .Values.service.milterPort }}
+      targetPort: 7357
+      protocol: TCP
+      name: milter
   selector:
     {{- include "clamav-openshift.selectorLabels" . | nindent 4 }}
