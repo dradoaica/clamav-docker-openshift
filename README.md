@@ -1,6 +1,6 @@
 # clamav-docker-openshift
 
-Is an OpenShift ready docker image built on top of [Docker Hub: clamav/clamav](https://hub.docker.com/r/clamav/clamav) docker image.
+It's an OpenShift ready docker image built on top of [Docker Hub: clamav/clamav](https://hub.docker.com/r/clamav/clamav) docker image.
 
 ## Build clamav-docker-openshift
 
