@@ -1,54 +1,95 @@
 # Contributing to clamav-docker-openshift
 
-Thank you for your interest in contributing to clamav-docker-openshift! We're excited to collaborate with you and see
-how together we can improve and evolve this application.
+Thank you for your interest in contributing to clamav-docker-openshift! This project provides an OpenShift-ready image
+of [ClamAV](https://www.clamav.net/), built on top of the official
+[clamav/clamav](https://hub.docker.com/r/clamav/clamav) image. Its goal is to stay as close to upstream as possible
+while making the image work under OpenShift's restricted security context (arbitrary non-root UID, root group `0`).
 
-## Getting Started
+## Where Things Live
 
-If this is your first visit, a great way to begin is by tackling issues tagged as `"help wanted"` or
-`"good first issue"`. These are specially curated to help you get acquainted with the project and make a meaningful
-impact early on.
+- [Dockerfile](Dockerfile): the image itself. It pins the upstream ClamAV version, fixes ownership/permissions of
+  `/var/lib/clamav` and `/var/log/clamav`, and runs as user `1001` via the upstream `/init-unprivileged` entrypoint.
+- [.github/workflows/release.yml](.github/workflows/release.yml): builds and pushes the image to GHCR when a GitHub
+  release is published.
+- [README.md](README.md): build, push and run instructions.
+- The Helm chart lives in a separate repository:
+  [dradoaica/helm-charts](https://github.com/dradoaica/helm-charts/tree/main/charts/clamav-openshift). Changes to
+  deployment manifests, values or chart templates should be proposed there.
+
+Problems with ClamAV itself (scanning, `clamd`/`freshclam` behavior, detections) belong upstream at
+[Cisco-Talos/clamav](https://github.com/Cisco-Talos/clamav). Security issues follow [SECURITY.md](SECURITY.md).
+
+## Reporting Bugs
+
+Please open an issue that includes:
+
+- The image tag (and digest, if possible) and whether you pulled it from Docker Hub or GHCR.
+- Where it runs: OpenShift, Kubernetes or plain Docker/Podman, and its version.
+- The Security Context Constraint / security context in use (e.g. `restricted-v2`) and the UID the pod runs as.
+- Container logs, especially any `freshclam` or `clamd` permission errors.
 
 ## Spot a Typo?
 
-Typos and other small fixes are important to us -— no contribution is too small! If you spot something small, go ahead
-and open a Pull Request. For these types of contributions, there's no need to create a separate issue.
+Typos and other small fixes are welcome — no contribution is too small! Just open a pull request; there's no need to
+create an issue first.
 
-## Have a Suggestion?
+## Updating the ClamAV Version
 
-If you have a suggestion on how to enhance clamav-docker-openshift, please open an issue with the following details:
+Most contributions are version bumps. When a new `clamav/clamav` tag is released:
 
-- A clear title and description of the suggestion
-- Any relevant examples or mockups
-- Indicate whether you're interested in implementing the feature yourself
+1. Update the `FROM clamav/clamav:<version>` line in the [Dockerfile](Dockerfile).
+2. Update every `dradoaica/clamav-openshift:<version>` reference in [README.md](README.md).
+3. Update the supported version in [SECURITY.md](SECURITY.md).
+4. Build and test the image locally (see below).
+5. Use a commit message like `ClamAV 1.5.4`.
 
-We'll review your suggestion and have a discussion about its potential inclusion in the project.
+Image tags always match the upstream ClamAV version. Please don't use floating base tags such as `latest` or `stable`.
+
+## Testing Your Changes
+
+Build the image:
+
+```sh
+docker build -t clamav-openshift:dev -f Dockerfile .
+```
+
+Run it as an arbitrary UID in the root group, the way OpenShift does, so that permission problems show up locally:
+
+```sh
+docker run --rm -d --name clamav-openshift-dev --user 123456:0 -p 3310:3310 clamav-openshift:dev
+docker logs -f clamav-openshift-dev
+```
+
+Wait for `freshclam` to download the signature database and for `clamd` to start, then check that it answers:
+
+```sh
+docker exec clamav-openshift-dev clamdscan --version
+echo PING | nc localhost 3310   # expect: PONG
+```
+
+Also make sure the container still works with the default user (no `--user` flag). If you can, verify on an OpenShift
+cluster with the default `restricted-v2` SCC, without granting `anyuid` or other extra privileges.
+
+## Pull Requests
+
+- Keep changes focused; one logical change per pull request.
+- Describe what you changed, why, and how you tested it (Docker/Podman/OpenShift, and which UID).
+- Don't commit secrets, signature databases or other generated files.
+- Releases are created by the maintainer: publishing a GitHub release triggers the workflow that builds and pushes the
+  image, so pull requests should not change image tags in the workflow.
 
 ## Contribution Principles
 
-When considering contributions, we're guided by several principles that align with the project's vision:
-
-- **Best Practices**: We want this application to be canonical and reflect the best practices in the industry and in
-  .NET and Angular.
-
-- **Selectivity in Tools and Libraries**: There is a rich ecosystem of tools, projects, and libraries out there, and we
-  cannot use all of them in this sample. We would like this repo to reflect the use of a realistic set of technologies,
-  not to be a showcase or example of every possible thing it could use.
-
-- **Architectural Integrity**: We welcome refactoring and architectural improvements, provided they're justified.
-  Large-scale changes should come with a clear rationale, such as significant enhancements to the application's design
-  or performance.
-
-- **Enhancing Reliability and Scalability**: We welcome contributions that improve the application's reliability and
-  scalability. These could include updates to error handling, redundancy mechanisms, data access, and any other changes
-  that help clamav-docker-openshift operate more robustly under load. We'd love to see relevant test scenarios or
-  metrics for these contributions.
-
-- **Performance Enhancements**: If you're looking to speed up clamav-docker-openshift, we're all for it! Please include
-  benchmark comparisons to demonstrate the improvements. Performance improvements that make the code less readable or
-  canonical may have more scrutiny applied.
+- **Stay close to upstream**: this image should be a minimal delta on top of `clamav/clamav`. Prefer upstream
+  configuration and entrypoints over custom scripts, and propose general improvements to ClamAV or its Docker image
+  upstream instead.
+- **Least privilege**: the image must run without root and without extra SCCs. Grant group `0` only what OpenShift
+  needs; avoid world-writable paths, `setuid` binaries or broadening permissions beyond the ClamAV data and log
+  directories.
+- **Small and reproducible**: avoid adding packages, layers or tools to the image unless they're needed at runtime.
+  Pin versions so that a given tag always builds the same ClamAV release.
 
 ## Code of Conduct
 
-To ensure a welcoming and positive environment for everyone, please adhere to our Code of Conduct. Respectful
-collaboration is key to a successful project.
+To ensure a welcoming and positive environment for everyone, please follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+Respectful collaboration is key to a successful project.
