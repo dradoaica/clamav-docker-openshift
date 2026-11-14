@@ -6,12 +6,12 @@ ClamAV can run under OpenShift's arbitrary, non-root UIDs (group `0`), and switc
 
 ## Supported Versions
 
-Each image tag tracks the upstream ClamAV version it is built from (for example, `1.5.4` is built from
-`clamav/clamav:1.5.4`). Only the latest released tag is supported:
+Each image tag tracks the upstream ClamAV version it is built from (for example, `1.5.5` is built from
+`clamav/clamav:1.5.5`). Only the latest released tag is supported:
 
 | Version          | Supported |
 |------------------|-----------|
-| latest (`1.5.4`) | Yes       |
+| latest (`1.5.5`) | Yes       |
 | older tags       | No        |
 
 Images are published to:

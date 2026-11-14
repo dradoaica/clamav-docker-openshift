@@ -41,7 +41,7 @@ Most contributions are version bumps. When a new `clamav/clamav` tag is released
 2. Update every `dradoaica/clamav-openshift:<version>` reference in [README.md](README.md).
 3. Update the supported version in [SECURITY.md](SECURITY.md).
 4. Build and test the image locally (see below).
-5. Use a commit message like `ClamAV 1.5.4`.
+5. Use a commit message like `ClamAV 1.5.5`.
 
 Image tags always match the upstream ClamAV version. Please don't use floating base tags such as `latest` or `stable`.
 
